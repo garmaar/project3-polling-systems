@@ -222,16 +222,6 @@ matplotlib
 jupyter
 ```
 
-A possible `requirements.txt` file is:
-
-```text
-simpy
-numpy
-pandas
-matplotlib
-jupyter
-```
-
 ## Main Simulation Parameters
 
 The main configurable parameters are:
