@@ -69,7 +69,7 @@ def main() -> None:
 
     disciplines = ["exhaustive", "limited"]
     rho_values = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
-    M_values = [5, 10, 20]
+    M_values = [5, 10, 20, 40, 80, 160]
     seeds = [1, 2, 3]
 
     T = 3.0
