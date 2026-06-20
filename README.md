@@ -54,7 +54,6 @@ PollingProject/
 ├── main.py
 │
 ├── src/
-│   ├── __init__.py
 │   ├── config.py
 │   ├── packet.py
 │   ├── station.py
@@ -67,7 +66,9 @@ PollingProject/
 │   ├── run_experiments.py
 │   ├── analyze_results.py
 │   ├── plot_results.py
-│   └── run_hot_station.py
+|   ├── run_extension.py
+│   ├── run_hot_station.py
+|   └── plot_extension.py
 │
 ├── notebooks/
 │   └── project3_analysis.ipynb
