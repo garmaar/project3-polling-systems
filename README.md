@@ -66,9 +66,8 @@ PollingProject/
 │   ├── run_experiments.py
 │   ├── analyze_results.py
 │   ├── plot_results.py
-|   ├── run_extension.py
-│   ├── run_hot_station.py
-|   └── plot_extension.py
+│   ├── run_extension.py
+│   └── plot_extension.py
 │
 ├── notebooks/
 │   └── project3_analysis.ipynb
@@ -83,7 +82,7 @@ PollingProject/
 │       ├── ew_vs_M.png
 │       ├── simulation_vs_theory.png
 │       ├── relative_error.png
-│       └── hot_station_fairness.png
+│       └── extension_fairness.png
 │
 └── report/
     └── final_report.pdf
@@ -118,28 +117,41 @@ This part is used to run multiple experiments, aggregate results, generate figur
 
 Implemented or planned components:
 
-| Component            | File                                | Description                                        |
-| -------------------- | ----------------------------------- | -------------------------------------------------- |
-| Experiment manager   | `experiments/run_experiments.py`    | Runs several scenarios automatically               |
-| Result aggregation   | `experiments/analyze_results.py`    | Aggregates results over different random seeds     |
-| Plot generation      | `experiments/plot_results.py`       | Generates final figures                            |
-| Hot-station scenario | `experiments/run_hot_station.py`    | Evaluates asymmetric traffic load                  |
-| Notebook analysis    | `notebooks/project3_analysis.ipynb` | Contains plots, explanations, and final discussion |
+| Component                 | File                                | Description                                                 |
+| ------------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| Experiment manager        | `experiments/run_experiments.py`    | Runs several scenarios automatically                        |
+| Result aggregation        | `experiments/analyze_results.py`    | Aggregates results over different random seeds              |
+| Main plot generation      | `experiments/plot_results.py`       | Generates the main validation and performance figures       |
+| Extension scenario        | `experiments/run_extension.py`      | Evaluates asymmetric traffic with one highly loaded station |
+| Extension plot generation | `experiments/plot_extension.py`     | Generates fairness and per-station waiting time figures     |
+| Notebook analysis         | `notebooks/project3_analysis.ipynb` | Contains plots, explanations, and final discussion          |
 
-## Installation
+## How to Run the Project
 
-Create a virtual environment:
+### 1. Create a virtual environment
 
-```bash
+```powershell
 python -m venv .venv
 ```
 
-Activate it:
+### 2. Activate the virtual environment
 
-On Windows:
+On Windows PowerShell:
 
-```bash
-.venv\Scripts\activate
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks the activation script, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+Then activate the environment again:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
 ```
 
 On Linux/macOS:
@@ -148,37 +160,114 @@ On Linux/macOS:
 source .venv/bin/activate
 ```
 
-Install the required packages:
+### 3. Install dependencies
 
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
-## Running One Simulation Scenario
+### 4. Run one basic simulation scenario
 
 Run exhaustive polling:
 
-```bash
+```powershell
 python main.py 1
 ```
 
 Run limited polling:
 
-```bash
+```powershell
 python main.py 2
 ```
 
+### 5. Run the full experiment set
+
+```powershell
+python experiments/run_experiments.py
+```
+
+### 6. Analyze the experiment results
+
+```powershell
+python experiments/analyze_results.py
+```
+
+### 7. Generate the main plots
+
+```powershell
+python experiments/plot_results.py
+```
+
+### 8. Run the extension scenario
+
+```powershell
+python experiments/run_extension.py
+```
+
+### 9. Generate the extension plots
+
+```powershell
+python experiments/plot_extension.py
+```
+
+## Requirements
+
+The project uses the following Python packages:
+
+```text
+simpy
+numpy
+pandas
+matplotlib
+jupyter
+```
+
+A possible `requirements.txt` file is:
+
+```text
+simpy
+numpy
+pandas
+matplotlib
+jupyter
+```
+
+## Main Simulation Parameters
+
+The main configurable parameters are:
+
+| Parameter         | Meaning                                                       |
+| ----------------- | ------------------------------------------------------------- |
+| `M`               | Number of stations                                            |
+| `rho`             | Total system load                                             |
+| `T`               | Packet service time                                           |
+| `h`               | Switching time between stations                               |
+| `discipline`      | Polling discipline: exhaustive or limited                     |
+| `k`               | Maximum number of packets served per visit in limited polling |
+| `simulation_time` | Total simulated time                                          |
+| `warmup_time`     | Initial transient period discarded from statistics            |
+| `seed`            | Random seed used for reproducibility                          |
+
+## Running Custom Scenarios
+
 Run exhaustive polling with custom parameters:
 
-```bash
+```powershell
 python main.py 1 --M 20 --rho 0.6 --T 3 --h 0.8
 ```
 
 Run limited polling with custom parameters:
 
-```bash
+```powershell
 python main.py 2 --M 10 --rho 0.7 --T 3 --h 0.8 --k 1
 ```
+
+Command line discipline codes:
+
+| Code | Discipline         |
+| ---- | ------------------ |
+| `1`  | Exhaustive polling |
+| `2`  | Limited polling    |
 
 ## Reference Validation Scenario
 
@@ -210,6 +299,169 @@ Relative error  ≈ 0.65 %
 
 These results show that the simulator agrees closely with the theoretical model for the selected reference scenario.
 
+## Experiment Set
+
+The experiment manager runs several combinations of parameters.
+
+Parameter sweep:
+
+```text
+Disciplines: exhaustive, limited
+M values:    5, 10, 20
+rho values:  0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7
+Seeds:       1, 2, 3
+```
+
+The raw output is stored in:
+
+```text
+outputs/raw/experiment_results.csv
+```
+
+The stored fields include:
+
+* discipline
+* M
+* rho
+* T
+* h
+* k
+* seed
+* simulation_EW
+* theoretical_EW
+* absolute_error
+* relative_error
+* packet count
+
+## Result Aggregation
+
+After running the experiments, the results are aggregated over different seeds.
+
+The aggregated output is stored in:
+
+```text
+outputs/tables/summary_results.csv
+```
+
+The summary includes:
+
+* mean simulated waiting time
+* standard deviation
+* mean theoretical waiting time
+* mean absolute error
+* mean relative error
+* maximum relative error
+* mean packet count
+* number of runs
+
+## Figures
+
+The main generated figures are stored in:
+
+```text
+outputs/figures/
+```
+
+Main figures:
+
+* `ew_vs_rho.png`
+* `ew_vs_M.png`
+* `simulation_vs_theory.png`
+* `relative_error.png`
+* `extension_fairness.png`
+
+## Extension Scenario
+
+The extension considers an asymmetric traffic scenario where one station generates significantly more traffic than the others.
+
+Example:
+
+```text
+lambda_hot = alpha * lambda_normal
+```
+
+The goal is to evaluate:
+
+* waiting time per station
+* fairness across stations
+* behavior under exhaustive polling
+* behavior under limited polling
+
+Expected qualitative behavior:
+
+* Exhaustive polling tends to help the highly loaded station because the server remains there until its queue is empty.
+* Limited polling provides more regular service opportunities to all stations.
+* Under limited polling, the highly loaded station may experience a much higher waiting time.
+* Exhaustive polling may be efficient for the hot station but less fair for the rest.
+
+## Fairness Metrics
+
+The extension uses per-station waiting times and fairness indicators.
+
+Possible metrics:
+
+```text
+max/min waiting time ratio
+Jain fairness index
+```
+
+Jain's fairness index is computed as:
+
+```text
+J = (sum(x_i)^2) / (M * sum(x_i^2))
+```
+
+where `x_i` represents the performance value of station `i`.
+
+## Notebook
+
+The notebook is located in:
+
+```text
+notebooks/project3_analysis.ipynb
+```
+
+It is used for:
+
+* loading experiment results
+* displaying tables
+* generating or showing plots
+* comparing simulation and theory
+* analyzing the impact of traffic load
+* analyzing the impact of the number of stations
+* discussing exhaustive vs limited polling
+* presenting the extension scenario
+* preparing the final report material
+
+The notebook should not contain the main simulator logic. The simulator logic is implemented in `src/`.
+
+## Report
+
+The final report should be concise and limited to a maximum of 3 pages.
+
+Suggested structure:
+
+1. **Model and implementation**
+
+   * Polling system description
+   * Poisson arrivals
+   * Service disciplines
+   * Simulation parameters
+
+2. **Validation and performance results**
+
+   * Simulation vs theory
+   * Average waiting time
+   * Impact of traffic load
+   * Impact of number of stations
+
+3. **Extension and conclusions**
+
+   * Asymmetric traffic scenario
+   * Per-station waiting time
+   * Fairness comparison
+   * Final conclusions
+
 ## Current Status
 
 Completed:
@@ -230,7 +482,13 @@ Completed:
 Pending:
 
 * Plot generation
-* Hot-station extension
+* Extension scenario
 * Fairness analysis
 * Final notebook polishing
 * Final report generation
+
+## Main Conclusion
+
+The simulator has been validated against the analytical model in a reference scenario. Both exhaustive and limited polling produce relative errors below 1%, which confirms that the simulation implementation is consistent with the theoretical predictions.
+
+The next step is to use the validated simulator to study how polling performance changes with traffic load, number of stations, and asymmetric traffic conditions.
