@@ -1,0 +1,3 @@
+discipline,mean_relative_error_percent,median_relative_error_percent,max_relative_error_percent,scenarios
+exhaustive,1.1644098560030474,1.01682555379073,5.26566182838521,21
+limited,2.195396407588672,2.08907687338255,15.00288244121134,21
